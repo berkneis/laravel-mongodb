@@ -1060,11 +1060,15 @@ class Builder extends BaseBuilder
      * @param array $where
      * @return array
      */
-    protected function compileWhereIn(array $where)
+   protected function compileWhereIn(array $where)
     {
         extract($where);
-
-        return [$column => ['$in' => array_values($values)]];
+        return [$column => ['$in' => array_map(function ($value) {
+            if(preg_match('/^[a-f\d]{24}$/i',$value)){
+                return new \MongoDB\BSON\ObjectID($value);
+            }
+            return $value;
+        }, array_values($values))]];
     }
 
     /**
